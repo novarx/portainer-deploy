@@ -1,0 +1,19 @@
+image: node:latest
+
+stages:
+  - build
+  - deploy
+
+build-and-test:
+  stage: build
+  script:
+    - npm run build
+    - npm run test
+
+publish-package:
+  stage: deploy
+  script:
+    - rm .npmrc
+    - echo "@nvax:registry=https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/" > .npmrc
+    - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> .npmrc
+    - npm publish

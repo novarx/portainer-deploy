@@ -1,0 +1,11 @@
+{
+  "extends": [
+    "oclif",
+    "oclif-typescript",
+    "prettier"
+  ],
+  "rules": {
+    "eqeqeq": "off",
+    "perfectionist/sort-objects": "off"
+  }
+}

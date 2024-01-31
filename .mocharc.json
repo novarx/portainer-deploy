@@ -1,0 +1,15 @@
+{
+  "require": [
+    "ts-node/register"
+  ],
+  "watch-extensions": [
+    "ts"
+  ],
+  "diff": true,
+  "inline-diffs": false,
+  "full-trace": false,
+  "recursive": true,
+  "reporter": "spec",
+  "timeout": 60000,
+  "enable-source-maps": true
+}
