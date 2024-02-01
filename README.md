@@ -3,9 +3,9 @@ oclif-hello-world
 
 oclif example Hello World CLI
 
-[![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![CircleCI](https://circleci.com/gh/oclif/hello-world/tree/main.svg?style=shield)](https://circleci.com/gh/oclif/hello-world/tree/main)
-[![GitHub license](https://img.shields.io/github/license/oclif/hello-world)](https://github.com/oclif/hello-world/blob/main/LICENSE)
+[![Latest Release](https://gitlab.com/nvax/portainer-deployer/-/badges/release.svg)](https://gitlab.com/nvax/portainer-deployer/-/releases)
+[![pipeline status](https://gitlab.com/nvax/portainer-deployer/badges/master/pipeline.svg)](https://gitlab.com/nvax/portainer-deployer/-/commits/master)
+[![coverage report](https://gitlab.com/nvax/portainer-deployer/badges/master/coverage.svg)](https://gitlab.com/nvax/portainer-deployer/-/commits/master)
 
 <!-- toc -->
 * [Usage](#usage)

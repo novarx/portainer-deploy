@@ -17,7 +17,7 @@
     "posttest": "npm run lint",
     "prepack": "npm run build && oclif manifest && oclif readme",
     "prepare": "npm run build",
-    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "test": "nyc --reporter cobertura mocha --forbid-only \"test/**/*.test.ts\"",
     "semantic-release": "semantic-release",
     "version": "oclif readme && git add README.md"
   },
@@ -44,6 +44,7 @@
     "eslint-config-oclif-typescript": "^3",
     "eslint-config-prettier": "^9.1.0",
     "mocha": "^10",
+    "nyc": "^15.1.0",
     "oclif": "^3.17.2",
     "semantic-release": "^23.0.0",
     "shx": "^0.3.3",
