@@ -18,7 +18,7 @@ $ npm install -g @nvax/portainer-deployer
 $ portainer-deployer COMMAND
 running command...
 $ portainer-deployer (--version)
-@nvax/portainer-deployer/0.0.0 win32-x64 node-v20.10.0
+@nvax/portainer-deployer/1.0.0 linux-x64 node-v20.11.0
 $ portainer-deployer --help [COMMAND]
 USAGE
   $ portainer-deployer COMMAND
@@ -38,33 +38,8 @@ USAGE
 ```
 # Commands
 <!-- commands -->
-* [`portainer-deployer deploy [FILE]`](#portainer-deployer-deploy-file)
 * [`portainer-deployer help [COMMANDS]`](#portainer-deployer-help-commands)
-
-## `portainer-deployer deploy [FILE]`
-
-Deploys Docker Compose Files to Portainer
-
-```
-USAGE
-  $ portainer-deployer deploy [FILE] --endpoint <value> --password <value> --stack <value> --url <value>
-    --username <value>
-
-ARGUMENTS
-  FILE  [default: docker-compose.yml] docker-compose file to deploy
-
-FLAGS
-  --endpoint=<value>  (required) portainer endpoint id
-  --password=<value>  (required) portainer password
-  --stack=<value>     (required) portainer stack id
-  --url=<value>       (required) portainer base url i.e.: https://portainer.example.com
-  --username=<value>  (required) portainer username
-
-DESCRIPTION
-  Deploys Docker Compose Files to Portainer
-```
-
-_See code: [dist/commands/deploy/index.ts](https://github.com/novarx.ch/portainer-deployer/blob/v0.0.0/dist/commands/deploy/index.ts)_
+* [`portainer-deployer stack [FILE]`](#portainer-deployer-stack-file)
 
 ## `portainer-deployer help [COMMANDS]`
 
@@ -84,7 +59,32 @@ DESCRIPTION
   Display help for portainer-deployer.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.0.8/lib/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.0.8/src/commands/help.ts)_
+
+## `portainer-deployer stack [FILE]`
+
+Deploys Docker Compose Files to Portainer
+
+```
+USAGE
+  $ portainer-deployer stack [FILE] --endpoint <value> --password <value> --stack <value> --url <value>
+    --username <value>
+
+ARGUMENTS
+  FILE  [default: docker-compose.yml] docker-compose file to deploy
+
+FLAGS
+  --endpoint=<value>  (required) portainer endpoint id
+  --password=<value>  (required) portainer password
+  --stack=<value>     (required) portainer stack id
+  --url=<value>       (required) portainer base url i.e.: https://portainer.example.com
+  --username=<value>  (required) portainer username
+
+DESCRIPTION
+  Deploys Docker Compose Files to Portainer
+```
+
+_See code: [src/commands/stack/index.ts](https://gitlab.com/nvax/portainer-deployer/blob/v1.0.0/src/commands/stack/index.ts)_
 <!-- commandsstop -->
 * [`portainer-deploy hello PERSON`](#portainer-deploy-hello-person)
 
