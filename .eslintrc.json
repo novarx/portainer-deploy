@@ -6,7 +6,9 @@
   ],
   "rules": {
     "eqeqeq": "off",
+    "no-eq-null": 0,
+    "@typescript-eslint/no-explicit-any": 0,
     "perfectionist/sort-objects": "off",
-    "no-eq-null": 0
+    "unicorn/consistent-function-scoping": "off"
   }
 }

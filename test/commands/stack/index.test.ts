@@ -10,6 +10,27 @@ describe('Deploy', () => {
         '--username=me'
     ];
 
+    const authRequest = (api: any) => api
+        .persist()
+        .post('/auth')
+        .reply(200, {jwt: 'kwbutxdu'});
+
+    const captureDeploymentBody = (body: any) => {
+        deploymentBody = body;
+        return true;
+    };
+
+    const deploymentRequest = (api: any) => api
+        .put('/stacks/44', captureDeploymentBody)
+        .query({'endpointId': 55})
+        .reply(200, {});
+
+    let deploymentBody: any | null;
+
+    beforeEach(() => {
+        deploymentBody = null;
+    });
+
     test.stderr().stdout()
         .command([
             'stack',
@@ -46,38 +67,79 @@ describe('Deploy', () => {
             expect(ctx.stderr).to.contain('Compose File: "docker-compose.yml" is empty or not present');
         });
 
+    const BASE_URL = 'http://lorem.com/api';
     test.stderr().stdout()
-        .nock('http://lorem.com/api', api => api
-            .post('/auth')
-            .reply(200, {jwt: 'bla'})
-        )
-        .nock('http://lorem.com/api', api => api
-            .put('/stacks/44')
-            .query({'endpointId': 55})
-            .reply(200, {})
-        )
+        .env({
+            'VAR_1': 'MFu51GC'
+        })
+        .nock(BASE_URL, authRequest)
+        .nock(BASE_URL, deploymentRequest)
+        .command([
+            'stack',
+            'test/commands/stack/docker-compose.yaml',
+            ...validArguments,
+            '--env_link=VAR_1,VAR_NOT_DEFINED'
+        ])
+        .it('with env_link flag', () => {
+            expect(deploymentBody.body.Env).to.deep.eq([
+                {
+                    'name': 'VAR_1',
+                    'value': 'MFu51GC'
+                },
+                {
+                    'name': 'VAR_NOT_DEFINED',
+                    'value': ''
+                }
+            ]);
+        });
+
+    test.stderr().stdout()
+        .nock(BASE_URL, authRequest)
+        .nock(BASE_URL, deploymentRequest)
+        .command([
+            'stack',
+            'test/commands/stack/docker-compose.yaml',
+            ...validArguments,
+            '--envs=[{"name": "VAR_2", "value": "Ff9RlhUisQ"}]'
+        ])
+        .it('with envs array flag', () => {
+            expect(deploymentBody.body.Env).to.deep.eq([
+                {
+                    'name': 'VAR_2',
+                    'value': 'Ff9RlhUisQ'
+                }
+            ]);
+        });
+
+    test.stderr().stdout()
+        .nock(BASE_URL, authRequest)
+        .nock(BASE_URL, deploymentRequest)
+        .command([
+            'stack',
+            'test/commands/stack/docker-compose.yaml',
+            ...validArguments,
+        ])
+        .it('successful deployment', ctx => {
+            expect(ctx.stdout).to.contain('portainer deployment successful');
+            expect(deploymentBody).to.deep.eq({
+                'body': {
+                    'Env': [],
+                    'Prune': true,
+                    'StackFileContent': 'services:\n  app:\n    image: nginx\n',
+                },
+                'headers': {
+                    'Authorization': 'Bearer kwbutxdu'
+                },
+                'json': true
+            });
+        });
+
+    test.stderr().stdout()
+        .nock(BASE_URL, authRequest)
         .command([
             'stack',
             'test/commands/stack/docker-compose.yaml',
             ...validArguments
-        ])
-        .it('shows cli version', ctx => {
-            expect(ctx.stdout).to.contain('portainer deployment successful');
-        });
-
-    test.stderr().stdout()
-        .nock('http://lorem.com/api', api => api
-            .post('/auth')
-            .reply(200, {jwt: 'my-auth-jwt'})
-        )
-        .command([
-            'stack',
-            'test/commands/stack/docker-compose.yaml',
-            '--endpoint=55',
-            '--stack=44',
-            '--url=http://lorem.com',
-            '--password=abc',
-            '--username=me',
         ])
         .exit(1)
         .it('handles http error', ctx => {

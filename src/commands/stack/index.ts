@@ -3,10 +3,8 @@ import * as fs from 'node:fs';
 import {lastValueFrom} from 'rxjs';
 
 import {Env, PortainerService} from '../../services/portainer.service';
-// import * as fs from 'node:fs';
 
-
-export default class Novadeployer extends Command {
+export default class DeployStack extends Command {
     static args = {
         file: Args.string({
             default: 'docker-compose.yml',
@@ -23,17 +21,17 @@ export default class Novadeployer extends Command {
             env: 'PORTAINER_ENDPOINT',
             required: true
         }),
-        // // eslint-disable-next-line camelcase
-        // env_link: Flags.string({
-        //     description: 'local variables to be sent to portainer stack, i.e.: "MY_ENV_VAR, MY_OTHER_ENV_VAR',
-        //     env: 'PORTAINER_ENV_LINKS',
-        //     exclusive: ['envs']
-        // }),
-        // envs: Flags.string({
-        //     description: 'portainer env variables as json-array',
-        //     env: 'PORTAINER_ENVS',
-        //     exclusive: ['env_link']
-        // }),
+        // eslint-disable-next-line camelcase
+        env_link: Flags.string({
+            description: 'local variables to be sent to portainer stack, i.e.: "MY_ENV_VAR, MY_OTHER_ENV_VAR',
+            env: 'PORTAINER_ENV_LINKS',
+            exclusive: ['envs']
+        }),
+        envs: Flags.string({
+            description: 'portainer env variables as json-array',
+            env: 'PORTAINER_ENVS',
+            exclusive: ['env_link']
+        }),
         password: Flags.string({
             description: 'portainer password',
             env: 'PORTAINER_PASS',
@@ -56,21 +54,18 @@ export default class Novadeployer extends Command {
         }),
     };
 
-    private service: PortainerService | null = null;
-
     async run(): Promise<void> {
-        const {args, flags} = await this.parse(Novadeployer);
+        const {args, flags} = await this.parse(DeployStack);
 
-        // this.log(`Compose File is`);
-
-        // const composeFile = this.getFile(args.file);
         const composeFile = this.getFileContent(args.file);
         if (!composeFile) this.fail(`Compose File: "${args.file}" is empty or not present`);
-        this.service = new PortainerService(flags.username, flags.password, flags.url);
+
         const envs: Env[] = flags.env_link
             ? this.localEnvToArray(flags.env_link)
             : this.envFlagsToArrayOrThrow(flags.envs);
-        return lastValueFrom(this.service.deploy(flags.stack, composeFile!, flags.endpoint, envs))
+
+        const service = new PortainerService(flags.username, flags.password, flags.url);
+        return lastValueFrom(service.deploy(flags.stack, composeFile!, flags.endpoint, envs))
             .then(() => this.log('portainer deployment successful'))
             .catch(error => this.fail(`portainer deployment error: ${JSON.stringify(error, null, 2)}`));
     }
@@ -88,12 +83,10 @@ export default class Novadeployer extends Command {
         return envs;
     }
 
-    // }
     private fail(message: string) {
         this.logToStderr(message);
         this.exit(1);
     }
-
 
     private getFileContent(filename: string): null | string {
         try {
@@ -104,8 +97,6 @@ export default class Novadeployer extends Command {
             }
 
             return null;
-            // Here you get the error when the file was not found,
-            // but you also get any other error
         }
     }
 

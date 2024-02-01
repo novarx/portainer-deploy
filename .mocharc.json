@@ -6,7 +6,7 @@
     "ts"
   ],
   "diff": true,
-  "inline-diffs": false,
+  "inline-diffs": true,
   "full-trace": false,
   "recursive": true,
   "reporter": "spec",

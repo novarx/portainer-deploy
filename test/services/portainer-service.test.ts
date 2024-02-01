@@ -14,7 +14,7 @@ describe('PortainerService', () => {
             .query({'endpointId': 88})
             .reply(200, {})
         )
-        .it('should ', async () => {
+        .it('should do authentication and deployment', async () => {
             const username = '4R9';
             const password = '49Ml302P';
             const url = 'http://lorem.com';
