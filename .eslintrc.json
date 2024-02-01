@@ -6,6 +6,7 @@
   ],
   "rules": {
     "eqeqeq": "off",
-    "perfectionist/sort-objects": "off"
+    "perfectionist/sort-objects": "off",
+    "no-eq-null": false
   }
 }
