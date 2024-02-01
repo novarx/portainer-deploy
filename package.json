@@ -1,19 +1,15 @@
 {
-  "author": "novarx @novarx",
+  "name": "@nvax/portainer-deployer",
+  "version": "0.0.0",
   "description": "Deploys a docker-compose.yml as a stack to a portainer instance",
   "homepage": "https://gitlab.com/nvax/portainer-deployer",
-  "license": "MIT",
-  "main": "dist/index.js",
-  "name": "@nvax/portainer-deployer",
-  "repository": "novarx.ch/portainer-deployer",
-  "version": "0.0.0",
+  "repository": "https://gitlab.com/nvax/portainer-deployer",
   "bugs": "https://gitlab.com/nvax/portainer-deployer/-/issues",
+  "author": "novarx @novarx",
+  "license": "MIT",
   "keywords": [
     "oclif"
   ],
-  "bin": {
-    "portainer-deployer": "./bin/run.js"
-  },
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
     "lint": "eslint . --ext .ts",
@@ -22,6 +18,7 @@
     "prepack": "npm run build && oclif manifest && oclif readme",
     "prepare": "npm run build",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "semantic-release": "semantic-release",
     "version": "oclif readme && git add README.md"
   },
   "dependencies": {
@@ -35,6 +32,9 @@
     "@jest/globals": "^29.7.0",
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/gitlab": "^13.0.2",
+    "@semantic-release/npm": "^11.0.2",
     "@types/chai": "^4",
     "@types/mocha": "^9.0.0",
     "@types/node": "^18",
@@ -45,10 +45,15 @@
     "eslint-config-prettier": "^9.1.0",
     "mocha": "^10",
     "oclif": "^3.17.2",
+    "semantic-release": "^23.0.0",
     "shx": "^0.3.3",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.2",
     "typescript": "^5"
+  },
+  "main": "dist/index.js",
+  "bin": {
+    "portainer-deployer": "./bin/run.js"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -67,8 +72,41 @@
     ],
     "topicSeparator": " ",
     "topics": {
-      "deploy": {}
+      "stack": {}
     }
   },
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "semantic-release": {
+    "branches": [
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/gitlab",
+        {
+          "gitlabUrl": "https://gitlab.com",
+          "assets": [
+            {
+              "path": "dist/asset.min.css",
+              "label": "CSS distribution"
+            },
+            {
+              "path": "dist/asset.min.js",
+              "label": "JS distribution",
+              "target": "generic_package"
+            },
+            {
+              "path": "dist/asset.min.js",
+              "label": "v${nextRelease.version}.js"
+            },
+            {
+              "url": "https://gitlab.com/gitlab-org/gitlab/-/blob/master/README.md"
+            }
+          ]
+        }
+      ]
+    ]
+  }
 }

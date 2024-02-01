@@ -18,11 +18,6 @@ export default class Novadeployer extends Command {
     static description = 'Deploys Docker Compose Files to Portainer';
 
     static flags = {
-        // endpoint: Flags.integer({
-        //     char: 'f',
-        //     description: 'Who is saying hello',
-        //     required: true
-        // }),
         endpoint: Flags.integer({
             description: 'portainer endpoint id',
             env: 'PORTAINER_ENDPOINT',
@@ -39,7 +34,6 @@ export default class Novadeployer extends Command {
         //     env: 'PORTAINER_ENVS',
         //     exclusive: ['env_link']
         // }),
-        // help: Flags.help({char: 'h'}),
         password: Flags.string({
             description: 'portainer password',
             env: 'PORTAINER_PASS',

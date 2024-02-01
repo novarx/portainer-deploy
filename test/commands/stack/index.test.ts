@@ -12,20 +12,20 @@ describe('Deploy', () => {
 
     test.stderr().stdout()
         .command([
-            'deploy',
-            'test/commands/deploy/docker-compose.empty.yml',
+            'stack',
+            'test/commands/stack/docker-compose.empty.yml',
             ...validArguments
         ])
         .exit(1)
         .it('throw on empty compose-file', ctx => {
             expect(ctx.stderr).to.contain(
-                'Compose File: "test/commands/deploy/docker-compose.empty.yml" is empty or not present'
+                'Compose File: "test/commands/stack/docker-compose.empty.yml" is empty or not present'
             );
         });
 
     test.stderr().stdout()
         .command([
-            'deploy',
+            'stack',
             'iAmNotARealFolder/docker-compose.NOPE.yaml',
             ...validArguments
         ])
@@ -38,7 +38,7 @@ describe('Deploy', () => {
 
     test.stderr().stdout()
         .command([
-            'deploy',
+            'stack',
             ...validArguments
         ])
         .exit(1)
@@ -57,8 +57,8 @@ describe('Deploy', () => {
             .reply(200, {})
         )
         .command([
-            'deploy',
-            'test/commands/deploy/docker-compose.yaml',
+            'stack',
+            'test/commands/stack/docker-compose.yaml',
             ...validArguments
         ])
         .it('shows cli version', ctx => {
@@ -71,8 +71,8 @@ describe('Deploy', () => {
             .reply(200, {jwt: 'my-auth-jwt'})
         )
         .command([
-            'deploy',
-            'test/commands/deploy/docker-compose.yaml',
+            'stack',
+            'test/commands/stack/docker-compose.yaml',
             '--endpoint=55',
             '--stack=44',
             '--url=http://lorem.com',
