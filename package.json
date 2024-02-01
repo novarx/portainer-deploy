@@ -1,5 +1,5 @@
 {
-  "name": "@nvax/portainer-deployer",
+  "name": "@nvax/portainer-deploy",
   "version": "1.0.0",
   "description": "Deploys a docker-compose.yml as a stack to a portainer instance",
   "homepage": "https://gitlab.com/nvax/portainer-deployer",
@@ -53,7 +53,7 @@
   },
   "main": "dist/index.js",
   "bin": {
-    "portainer-deployer": "./bin/run.js"
+    "portainer-deploy": "./bin/run.js"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -64,8 +64,8 @@
     "/oclif.manifest.json"
   ],
   "oclif": {
-    "bin": "portainer-deployer",
-    "dirname": "portainer-deployer",
+    "bin": "portainer-deploy",
+    "dirname": "portainer-deploy",
     "commands": "./dist/commands",
     "plugins": [
       "@oclif/plugin-help"
