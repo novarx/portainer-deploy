@@ -43,7 +43,7 @@ cli:publish:gitlab:
   stage: staging
   extends: .with-gitlab-registry
   script:
-    - npm version $CI_COMMIT_SHORT_SHA
+    - npm version --no-git-tag-version --no-commit-hooks 99.0.0-$CI_COMMIT_SHORT_SHA
     - npm publish
 
 cli:smoke-test:
@@ -52,7 +52,7 @@ cli:smoke-test:
   needs:
     - cli:publish:gitlab
   script:
-    - npm i -g @nvax/portainer-deploy@$CI_COMMIT_SHORT_SHA
+    - npm i -g @nvax/portainer-deploy@99.0.0-$CI_COMMIT_SHORT_SHA
     - cd ./test/commands/stack/ || exit 1
     - portainer-deploy stack docker-compose.yaml --endpoint=2 --stack=200 || exit 1
 
