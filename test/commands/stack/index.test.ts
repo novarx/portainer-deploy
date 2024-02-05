@@ -90,7 +90,7 @@ describe('DeployStack', () => {
             '--env_link=VAR_1,VAR_NOT_DEFINED'
         ])
         .it('with env_link flag', () => {
-            expect(deploymentReq.Env).to.deep.eq([
+            expect(deploymentReq.env).to.deep.eq([
                 {
                     'name': 'VAR_1',
                     'value': 'MFu51GC'
@@ -112,7 +112,7 @@ describe('DeployStack', () => {
             '--envs=[{"name": "VAR_2", "value": "Ff9RlhUisQ"}]'
         ])
         .it('with envs array flag', () => {
-            expect(deploymentReq.Env).to.deep.eq([
+            expect(deploymentReq.env).to.deep.eq([
                 {
                     'name': 'VAR_2',
                     'value': 'Ff9RlhUisQ'
@@ -130,11 +130,10 @@ describe('DeployStack', () => {
         ])
         .it('successful deployment', ctx => {
             expect(ctx.stdout).to.contain('portainer deployment successful');
-            const cleanStackFileContent = deploymentReq.StackFileContent.replaceAll('\r\n', `\n`);
+            const cleanStackFileContent = deploymentReq.stackFileContent.replaceAll('\r\n', `\n`);
             expect(cleanStackFileContent).to.eq("services:\n  app:\n    image: nginx\n");
-            expect(deploymentReq.Prune).to.be.true;
-            expect(deploymentReq.Env).to.deep.eq([]);
-            // expect(deploymentReq.headers.Authorization).to.eq("Bearer kwbutxdu");
+            expect(deploymentReq.prune).to.be.true;
+            expect(deploymentReq.env).to.deep.eq([]);
         });
 
     test.stderr().stdout()

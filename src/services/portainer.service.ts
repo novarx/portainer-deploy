@@ -28,9 +28,9 @@ export class PortainerService {
             mergeMap(bearer => axios.put(
                 `${this.getUrl()}/stacks/${stackId}?endpointId=${endpointId}`,
                 {
-                    Env: envs,
-                    Prune: true,
-                    StackFileContent: composeContent
+                    env: envs,
+                    prune: true,
+                    stackFileContent: composeContent
                 },
                 this.getAuthorizationHeaders(bearer)
             )),
