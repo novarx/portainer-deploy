@@ -143,7 +143,7 @@ describe('DeployStack', () => {
             'test/commands/stack/docker-compose.yaml',
             ...validArguments,
         ])
-        .it('authenticates', ctx => {
+        .it('authenticates', () => {
             expect(authReq.body).to.deep.eq({
                 "password": "abc",
                 "username": "me",
