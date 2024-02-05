@@ -24,6 +24,8 @@ test:
     - chmod +x codecov
     - ./codecov -t $CODECOV_TOKEN
   artifacts:
+    paths:
+      - coverage
     reports:
       coverage_report:
         coverage_format: cobertura
