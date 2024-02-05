@@ -1,0 +1,21 @@
+Prompt: logo with a whale jumping over one iceberg, docker swarm style, all white background
+
+Negative Prompt:
+
+Fooocus V2 Expansion: logo with a whale jumping over one iceberg, docker swarm style, all white background, highly detailed, elegant, intricate, sharp focus, beautiful light, artistic, cute, lovely, enhanced, joyful, detail, pretty, inspired, novel, shiny, vibrant, illuminated, cinematic, epic, clear, crisp, color, amazing, symmetry, divine, great, atmosphere
+
+Styles: ['Fooocus V2', 'Logo Design', 'Minimalism', 'SAI Line Art'], Performance: Extreme Speed
+
+Resolution: (1024, 1024), Sharpness: 0.0
+
+Guidance Scale: 1.0, ADM Guidance: (1.0, 1.0, 0.0)
+
+Base Model: juggernautXL_v8.safetensors, Refiner Model: None
+
+Refiner Switch: 1.0, Sampler: lcm
+
+Scheduler: lcm, Seed: 968410241458400504
+
+LoRA [slider/zoom[+-1.25].safetensors] weight: 0.0, LoRA [slider/detail[+-3].safetensors] weight: 0.0
+
+LoRA [sdxl_lcm_lora.safetensors] weight: 1.0,
