@@ -1,24 +1,26 @@
-
 stages:
   - build
-  - deploy
+  - staging
+  - publish
 
-image: node:20
-cache:
-  key: $CI_COMMIT_REF_SLUG
-  paths:
-    - .npm/
+default:
+  image: node:20
+  retry: 2
+  before_script:
+    - npm ci
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - .npm/
 
-build:
+cli:build:
   stage: build
   script:
-    - npm ci
     - npm run build
 
-test:
+cli:test:
   stage: build
   script:
-    - npm ci
     - npm run test
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
@@ -31,10 +33,32 @@ test:
         coverage_format: cobertura
         path: coverage/cobertura-coverage.xml
 
-publish-package:npmjs:
-  stage: deploy
+.with-gitlab-registry:
   script:
-    - npm ci
+    - rm .npmrc
+    - echo "@nvax:registry=https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/" > .npmrc
+    - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> .npmrc
+
+cli:publish:gitlab:
+  stage: staging
+  extends: .with-gitlab-registry
+  script:
+    - npm version $CI_COMMIT_SHORT_SHA
+    - npm publish
+
+cli:smoke-test:
+  stage: staging
+  extends: .with-gitlab-registry
+  dependencies:
+    - cli:publish:gitlab
+  script:
+    - npm i -g @nvax/portainer-deploy@$CI_COMMIT_SHORT_SHA
+    - cd ./test/commands/stack/ || exit 1
+    - portainer-deploy stack docker-compose.yaml --endpoint=2 --stack=200 || exit 1
+
+cli:publish:npmjs:
+  stage: publish
+  script:
     - npm config set //registry.npmjs.org/:_authToken ${NPMJS_TOKEN}
     - npm run semantic-release
   rules:
