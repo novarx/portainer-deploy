@@ -127,7 +127,7 @@ describe('DeployStack', () => {
         ])
         .it('successful deployment', ctx => {
             expect(ctx.stdout).to.contain('portainer deployment successful');
-            const cleanStackFileContent = deploymentReq.body.StackFileContent.replace(/\r\n/g, `\n`);
+            const cleanStackFileContent = deploymentReq.body.StackFileContent.replaceAll('\r\n', `\n`);
             expect(cleanStackFileContent).to.eq("services:\n  app:\n    image: nginx\n");
             expect(deploymentReq.body.Prune).to.be.true;
             expect(deploymentReq.body.Env).to.deep.eq([]);
