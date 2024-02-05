@@ -10,6 +10,9 @@
   "keywords": [
     "oclif"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
     "lint": "eslint . --ext .ts",
