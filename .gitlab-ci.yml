@@ -27,11 +27,11 @@ cli:test:
     - ./codecov -t $CODECOV_TOKEN
   artifacts:
     paths:
-      - coverage
+      - ./dist
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: coverage/cobertura-coverage.xml
+        path: ./dist/coverage/cobertura-coverage.xml
 
 .with-gitlab-registry:
   before_script:

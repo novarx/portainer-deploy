@@ -3,8 +3,8 @@ partainer-deploy
 
 A small CLI to deploy a docker-compose file to a [Portainer](https://www.portainer.io/) instance.
 
-[![Latest Release](https://gitlab.com/nvax/portainer-deployer/-/badges/release.svg)](https://www.npmjs.com/package/@nvax/portainer-deploy)
-[![codecov](https://codecov.io/gitlab/nvax/portainer-deployer/graph/badge.svg?token=GISRSV96RO)](https://codecov.io/gitlab/nvax/portainer-deployer) 
+[![Latest Release](https://gitlab.com/nvax/portainer-deploy/-/badges/release.svg)](https://www.npmjs.com/package/@nvax/portainer-deploy)
+[![codecov](https://codecov.io/gitlab/nvax/portainer-deploy/graph/badge.svg?token=GISRSV96RO)](https://codecov.io/gitlab/nvax/portainer-deploy) 
 
 <!-- toc -->
 * [Usage](#usage)
@@ -76,5 +76,5 @@ DESCRIPTION
   Deploys Docker Compose Files to Portainer
 ```
 
-_See code: [dist/commands/stack/index.ts](https://gitlab.com/nvax/portainer-deployer/blob/v1.1.0/dist/commands/stack/index.ts)_
+_See code: [dist/commands/stack/index.ts](https://gitlab.com/nvax/portainer-deploy/blob/v1.1.0/dist/commands/stack/index.ts)_
 <!-- commandsstop -->
