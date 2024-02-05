@@ -1,4 +1,5 @@
 import {expect, test} from '@oclif/test';
+import {NockScope} from 'fancy-test/lib/types';
 
 describe('DeployStack', () => {
 
@@ -10,7 +11,7 @@ describe('DeployStack', () => {
         '--username=me'
     ];
 
-    const authRequest = (api: any) => api
+    const authRequest = (api: NockScope) => api
         .persist()
         .post('/auth', captureAuthBody)
         .reply(200, {jwt: 'kwbutxdu'});
@@ -25,8 +26,9 @@ describe('DeployStack', () => {
         return true;
     };
 
-    const deploymentRequest = (api: any) => api
+    const deploymentRequest = (api: NockScope) => api
         .put('/stacks/44', captureDeploymentBody)
+        .matchHeader('Authorization', (value: string) => value === 'Bearer kwbutxdu')
         .query({'endpointId': 55})
         .reply(200, {});
 
@@ -35,6 +37,7 @@ describe('DeployStack', () => {
 
     beforeEach(() => {
         deploymentReq = null;
+        authReq = null;
     });
 
     test.stderr().stdout()
@@ -87,7 +90,7 @@ describe('DeployStack', () => {
             '--env_link=VAR_1,VAR_NOT_DEFINED'
         ])
         .it('with env_link flag', () => {
-            expect(deploymentReq.body.Env).to.deep.eq([
+            expect(deploymentReq.Env).to.deep.eq([
                 {
                     'name': 'VAR_1',
                     'value': 'MFu51GC'
@@ -109,7 +112,7 @@ describe('DeployStack', () => {
             '--envs=[{"name": "VAR_2", "value": "Ff9RlhUisQ"}]'
         ])
         .it('with envs array flag', () => {
-            expect(deploymentReq.body.Env).to.deep.eq([
+            expect(deploymentReq.Env).to.deep.eq([
                 {
                     'name': 'VAR_2',
                     'value': 'Ff9RlhUisQ'
@@ -127,12 +130,11 @@ describe('DeployStack', () => {
         ])
         .it('successful deployment', ctx => {
             expect(ctx.stdout).to.contain('portainer deployment successful');
-            const cleanStackFileContent = deploymentReq.body.StackFileContent.replaceAll('\r\n', `\n`);
+            const cleanStackFileContent = deploymentReq.StackFileContent.replaceAll('\r\n', `\n`);
             expect(cleanStackFileContent).to.eq("services:\n  app:\n    image: nginx\n");
-            expect(deploymentReq.body.Prune).to.be.true;
-            expect(deploymentReq.body.Env).to.deep.eq([]);
-            expect(deploymentReq.headers.Authorization).to.eq("Bearer kwbutxdu");
-            expect(deploymentReq.json).to.be.true;
+            expect(deploymentReq.Prune).to.be.true;
+            expect(deploymentReq.Env).to.deep.eq([]);
+            // expect(deploymentReq.headers.Authorization).to.eq("Bearer kwbutxdu");
         });
 
     test.stderr().stdout()
@@ -144,7 +146,7 @@ describe('DeployStack', () => {
             ...validArguments,
         ])
         .it('authenticates', () => {
-            expect(authReq.body).to.deep.eq({
+            expect(authReq).to.deep.eq({
                 "password": "abc",
                 "username": "me",
             });
