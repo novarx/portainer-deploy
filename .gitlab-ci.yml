@@ -52,6 +52,11 @@ cli:smoke-test:
   extends: .with-gitlab-registry
   needs:
     - cli:publish:gitlab
+  variables:
+    PORTAINER_URL: $PORTAINER_URL
+    PORTAINER_USER: $PORTAINER_USER
+    PORTAINER_PASS: $PORTAINER_PASS
+    PORTAINER_ENDPOINT: $PORTAINER_ENDPOINT
   script:
     - npm config set @nvax:registry=https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/
     - npm i -g @nvax/portainer-deploy@99.0.0-$CI_COMMIT_SHORT_SHA
