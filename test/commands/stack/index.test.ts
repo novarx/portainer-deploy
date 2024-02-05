@@ -1,6 +1,6 @@
 import {expect, test} from '@oclif/test';
 
-describe('Deploy', () => {
+describe('DeployStack', () => {
 
     const validArguments = [
         '--endpoint=55',
@@ -12,11 +12,16 @@ describe('Deploy', () => {
 
     const authRequest = (api: any) => api
         .persist()
-        .post('/auth')
+        .post('/auth', captureAuthBody)
         .reply(200, {jwt: 'kwbutxdu'});
 
     const captureDeploymentBody = (body: any) => {
-        deploymentBody = body;
+        deploymentReq = body;
+        return true;
+    };
+
+    const captureAuthBody = (body: any) => {
+        authReq = body;
         return true;
     };
 
@@ -25,10 +30,11 @@ describe('Deploy', () => {
         .query({'endpointId': 55})
         .reply(200, {});
 
-    let deploymentBody: any | null;
+    let deploymentReq: any | null;
+    let authReq: any | null;
 
     beforeEach(() => {
-        deploymentBody = null;
+        deploymentReq = null;
     });
 
     test.stderr().stdout()
@@ -81,7 +87,7 @@ describe('Deploy', () => {
             '--env_link=VAR_1,VAR_NOT_DEFINED'
         ])
         .it('with env_link flag', () => {
-            expect(deploymentBody.body.Env).to.deep.eq([
+            expect(deploymentReq.body.Env).to.deep.eq([
                 {
                     'name': 'VAR_1',
                     'value': 'MFu51GC'
@@ -103,7 +109,7 @@ describe('Deploy', () => {
             '--envs=[{"name": "VAR_2", "value": "Ff9RlhUisQ"}]'
         ])
         .it('with envs array flag', () => {
-            expect(deploymentBody.body.Env).to.deep.eq([
+            expect(deploymentReq.body.Env).to.deep.eq([
                 {
                     'name': 'VAR_2',
                     'value': 'Ff9RlhUisQ'
@@ -121,16 +127,26 @@ describe('Deploy', () => {
         ])
         .it('successful deployment', ctx => {
             expect(ctx.stdout).to.contain('portainer deployment successful');
-            expect(deploymentBody).to.deep.eq({
-                'body': {
-                    'Env': [],
-                    'Prune': true,
-                    'StackFileContent': 'services:\n  app:\n    image: nginx\n',
-                },
-                'headers': {
-                    'Authorization': 'Bearer kwbutxdu'
-                },
-                'json': true
+            const cleanStackFileContent = deploymentReq.body.StackFileContent.replace(/\r\n/g, `\n`);
+            expect(cleanStackFileContent).to.eq("services:\n  app:\n    image: nginx\n");
+            expect(deploymentReq.body.Prune).to.be.true;
+            expect(deploymentReq.body.Env).to.deep.eq([]);
+            expect(deploymentReq.headers.Authorization).to.eq("Bearer kwbutxdu");
+            expect(deploymentReq.json).to.be.true;
+        });
+
+    test.stderr().stdout()
+        .nock(BASE_URL, authRequest)
+        .nock(BASE_URL, deploymentRequest)
+        .command([
+            'stack',
+            'test/commands/stack/docker-compose.yaml',
+            ...validArguments,
+        ])
+        .it('authenticates', ctx => {
+            expect(authReq.body).to.deep.eq({
+                "password": "abc",
+                "username": "me",
             });
         });
 

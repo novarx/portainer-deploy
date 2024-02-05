@@ -16,10 +16,10 @@ export class PortainerService {
 
     private readonly BASE_PATH = '/api';
     private readonly BASE_URL: string;
-    private user: { Password: string; Username: string };
+    private user: { password: string; username: string };
 
     constructor(username: string, password: string, url: string) {
-        this.user = {Password: password, Username: username};
+        this.user = {password, username};
         this.BASE_URL = url;
     }
 

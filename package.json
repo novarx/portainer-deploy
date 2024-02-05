@@ -14,6 +14,7 @@
     "access": "public"
   },
   "scripts": {
+    "clean": "shx rm -rf dist coverage .nyc_output",
     "build": "shx rm -rf dist && tsc -b",
     "lint": "eslint . --ext .ts",
     "postpack": "shx rm -f oclif.manifest.json",
@@ -21,6 +22,7 @@
     "prepack": "npm run build && oclif manifest && oclif readme",
     "prepare": "npm run build",
     "test": "nyc --source-map --produce-source-map --reporter cobertura --reporter html mocha test --forbid-only \"test/**/*.test.ts\" --require ts-node/register",
+    "test-dev": "mocha test --forbid-only \"test/**/*.test.ts\"",
     "semantic-release": "semantic-release",
     "version": "oclif readme && git add README.md"
   },
