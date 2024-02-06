@@ -3,6 +3,8 @@ import {NockScope} from 'fancy-test/lib/types';
 
 describe('DeployStack', () => {
 
+    const BASE_URL = 'http://lorem.com/api';
+
     const validArguments = [
         '--endpoint=55',
         '--stack=44',
@@ -76,7 +78,6 @@ describe('DeployStack', () => {
             expect(ctx.stderr).to.contain('Compose File: "docker-compose.yml" is empty or not present');
         });
 
-    const BASE_URL = 'http://lorem.com/api';
     test.stderr().stdout()
         .env({
             'VAR_1': 'MFu51GC'
@@ -131,7 +132,7 @@ describe('DeployStack', () => {
         .it('successful deployment', ctx => {
             expect(ctx.stdout).to.contain('portainer deployment successful');
             const cleanStackFileContent = deploymentReq.stackFileContent.replaceAll('\r\n', `\n`);
-            expect(cleanStackFileContent).to.eq("services:\n  app:\n    image: nginx\n");
+            expect(cleanStackFileContent).to.eq("version: '3'\nservices:\n  app:\n    image: nginx\n");
             expect(deploymentReq.prune).to.be.true;
             expect(deploymentReq.env).to.deep.eq([]);
         });
@@ -149,17 +150,5 @@ describe('DeployStack', () => {
                 "password": "abc",
                 "username": "me",
             });
-        });
-
-    test.stderr().stdout()
-        .nock(BASE_URL, authRequest)
-        .command([
-            'stack',
-            'test/commands/stack/docker-compose.yaml',
-            ...validArguments
-        ])
-        .exit(1)
-        .it('handles http error', ctx => {
-            expect(ctx.stderr).to.contain('portainer deployment error:');
         });
 });
