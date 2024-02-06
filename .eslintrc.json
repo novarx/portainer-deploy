@@ -9,6 +9,7 @@
     "no-eq-null": 0,
     "@typescript-eslint/no-explicit-any": 0,
     "perfectionist/sort-objects": "off",
-    "unicorn/consistent-function-scoping": "off"
+    "unicorn/consistent-function-scoping": "off",
+    "node/no-extraneous-import": 0
   }
 }

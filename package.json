@@ -2,9 +2,9 @@
   "name": "@nvax/portainer-deploy",
   "version": "1.1.0",
   "description": "Deploys a docker-compose.yml as a stack to a portainer instance",
-  "homepage": "https://gitlab.com/nvax/portainer-deployer",
-  "repository": "https://gitlab.com/nvax/portainer-deployer",
-  "bugs": "https://gitlab.com/nvax/portainer-deployer/-/issues",
+  "homepage": "https://gitlab.com/nvax/portainer-deploy",
+  "repository": "https://gitlab.com/nvax/portainer-deploy",
+  "bugs": "https://gitlab.com/nvax/portainer-deploy/-/issues",
   "author": "novarx @novarx",
   "license": "MIT",
   "keywords": [
@@ -14,13 +14,15 @@
     "access": "public"
   },
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b",
+    "clean": "shx rm -rf dist",
+    "build": "npm run clean && tsc -b",
     "lint": "eslint . --ext .ts",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "npm run lint",
     "prepack": "npm run build && oclif manifest && oclif readme",
     "prepare": "npm run build",
-    "test": "nyc --source-map --produce-source-map --reporter cobertura --reporter html mocha test --forbid-only \"test/**/*.test.ts\" --require ts-node/register",
+    "test": "nyc mocha test --forbid-only \"test/**/*.test.ts\" --require ts-node/register",
+    "test-dev": "mocha test --forbid-only \"test/**/*.test.ts\"",
     "semantic-release": "semantic-release",
     "version": "oclif readme && git add README.md"
   },
@@ -55,7 +57,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5"
   },
-  "main": "dist/index.js",
+  "main": "dist/portainer-deploy/index.js",
   "bin": {
     "portainer-deploy": "./bin/run.js"
   },
@@ -64,13 +66,13 @@
   },
   "files": [
     "/bin",
-    "/dist",
+    "/dist/portainer-deploy",
     "/oclif.manifest.json"
   ],
   "oclif": {
     "bin": "portainer-deploy",
     "dirname": "portainer-deploy",
-    "commands": "./dist/commands",
+    "commands": "./dist/portainer-deploy/commands",
     "plugins": [
       "@oclif/plugin-help"
     ],
@@ -79,7 +81,7 @@
       "stack": {}
     }
   },
-  "types": "dist/index.d.ts",
+  "types": "dist/portainer-deploy/index.d.ts",
   "semantic-release": {
     "branches": [
       "main"
@@ -93,16 +95,16 @@
           "gitlabUrl": "https://gitlab.com",
           "assets": [
             {
-              "path": "dist/asset.min.css",
+              "path": "dist/portainer-deploy/asset.min.css",
               "label": "CSS distribution"
             },
             {
-              "path": "dist/asset.min.js",
+              "path": "dist/portainer-deploy/asset.min.js",
               "label": "JS distribution",
               "target": "generic_package"
             },
             {
-              "path": "dist/asset.min.js",
+              "path": "dist/portainer-deploy/asset.min.js",
               "label": "v${nextRelease.version}.js"
             },
             {

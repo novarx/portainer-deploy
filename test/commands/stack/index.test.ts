@@ -1,6 +1,9 @@
 import {expect, test} from '@oclif/test';
+import {NockScope} from 'fancy-test/lib/types';
 
-describe('Deploy', () => {
+describe('DeployStack', () => {
+
+    const BASE_URL = 'http://lorem.com/api';
 
     const validArguments = [
         '--endpoint=55',
@@ -10,25 +13,33 @@ describe('Deploy', () => {
         '--username=me'
     ];
 
-    const authRequest = (api: any) => api
+    const authRequest = (api: NockScope) => api
         .persist()
-        .post('/auth')
+        .post('/auth', captureAuthBody)
         .reply(200, {jwt: 'kwbutxdu'});
 
     const captureDeploymentBody = (body: any) => {
-        deploymentBody = body;
+        deploymentReq = body;
         return true;
     };
 
-    const deploymentRequest = (api: any) => api
+    const captureAuthBody = (body: any) => {
+        authReq = body;
+        return true;
+    };
+
+    const deploymentRequest = (api: NockScope) => api
         .put('/stacks/44', captureDeploymentBody)
+        .matchHeader('Authorization', (value: string) => value === 'Bearer kwbutxdu')
         .query({'endpointId': 55})
         .reply(200, {});
 
-    let deploymentBody: any | null;
+    let deploymentReq: any | null;
+    let authReq: any | null;
 
     beforeEach(() => {
-        deploymentBody = null;
+        deploymentReq = null;
+        authReq = null;
     });
 
     test.stderr().stdout()
@@ -67,7 +78,6 @@ describe('Deploy', () => {
             expect(ctx.stderr).to.contain('Compose File: "docker-compose.yml" is empty or not present');
         });
 
-    const BASE_URL = 'http://lorem.com/api';
     test.stderr().stdout()
         .env({
             'VAR_1': 'MFu51GC'
@@ -81,7 +91,7 @@ describe('Deploy', () => {
             '--env_link=VAR_1,VAR_NOT_DEFINED'
         ])
         .it('with env_link flag', () => {
-            expect(deploymentBody.body.Env).to.deep.eq([
+            expect(deploymentReq.env).to.deep.eq([
                 {
                     'name': 'VAR_1',
                     'value': 'MFu51GC'
@@ -103,7 +113,7 @@ describe('Deploy', () => {
             '--envs=[{"name": "VAR_2", "value": "Ff9RlhUisQ"}]'
         ])
         .it('with envs array flag', () => {
-            expect(deploymentBody.body.Env).to.deep.eq([
+            expect(deploymentReq.env).to.deep.eq([
                 {
                     'name': 'VAR_2',
                     'value': 'Ff9RlhUisQ'
@@ -121,28 +131,24 @@ describe('Deploy', () => {
         ])
         .it('successful deployment', ctx => {
             expect(ctx.stdout).to.contain('portainer deployment successful');
-            expect(deploymentBody).to.deep.eq({
-                'body': {
-                    'Env': [],
-                    'Prune': true,
-                    'StackFileContent': 'services:\n  app:\n    image: nginx\n',
-                },
-                'headers': {
-                    'Authorization': 'Bearer kwbutxdu'
-                },
-                'json': true
-            });
+            const cleanStackFileContent = deploymentReq.stackFileContent.replaceAll('\r\n', `\n`);
+            expect(cleanStackFileContent).to.eq("version: '3'\nservices:\n  app:\n    image: nginx\n");
+            expect(deploymentReq.prune).to.be.true;
+            expect(deploymentReq.env).to.deep.eq([]);
         });
 
     test.stderr().stdout()
         .nock(BASE_URL, authRequest)
+        .nock(BASE_URL, deploymentRequest)
         .command([
             'stack',
             'test/commands/stack/docker-compose.yaml',
-            ...validArguments
+            ...validArguments,
         ])
-        .exit(1)
-        .it('handles http error', ctx => {
-            expect(ctx.stderr).to.contain('portainer deployment error:');
+        .it('authenticates', () => {
+            expect(authReq).to.deep.eq({
+                "password": "abc",
+                "username": "me",
+            });
         });
 });

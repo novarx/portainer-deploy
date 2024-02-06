@@ -1,0 +1,9 @@
+{
+  "source-map": true,
+  "produce-source-map": true,
+  "report-dir": "./dist/coverage",
+  "reporter": [
+    "cobertura",
+    "html"
+  ]
+}
