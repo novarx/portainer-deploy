@@ -18,7 +18,7 @@ $ npm install -g @nvax/portainer-deploy
 $ portainer-deploy COMMAND
 running command...
 $ portainer-deploy (--version)
-@nvax/portainer-deploy/1.1.0 win32-x64 node-v20.10.0
+@nvax/portainer-deploy/1.1.1 linux-x64 node-v20.11.0
 $ portainer-deploy --help [COMMAND]
 USAGE
   $ portainer-deploy COMMAND
@@ -49,7 +49,7 @@ DESCRIPTION
   Display help for portainer-deploy.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.0.8/lib/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.0.8/src/commands/help.ts)_
 
 ## `portainer-deploy stack [FILE]`
 
@@ -76,5 +76,5 @@ DESCRIPTION
   Deploys Docker Compose Files to Portainer
 ```
 
-_See code: [dist/commands/stack/index.ts](https://gitlab.com/nvax/portainer-deploy/blob/v1.1.0/dist/commands/stack/index.ts)_
+_See code: [src/commands/stack/index.ts](https://gitlab.com/nvax/portainer-deploy/blob/v1.1.1/src/commands/stack/index.ts)_
 <!-- commandsstop -->
