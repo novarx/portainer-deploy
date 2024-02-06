@@ -139,14 +139,17 @@ describe('DeployStack', () => {
 
     test.stderr().stdout()
         .nock(BASE_URL, authRequest)
+        .nock(BASE_URL, deploymentRequest)
         .command([
             'stack',
             'test/commands/stack/docker-compose.yaml',
-            ...validArguments
+            ...validArguments,
         ])
-        .exit(1)
-        .it('handles http error', ctx => {
-            expect(ctx.stderr).to.contain('portainer deployment error:');
+        .it('authenticates', () => {
+            expect(authReq).to.deep.eq({
+                "password": "abc",
+                "username": "me",
+            });
         });
 
     test.stderr().stdout()
