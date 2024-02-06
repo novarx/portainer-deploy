@@ -1,7 +1,6 @@
 import {expect, test} from '@oclif/test';
-import {firstValueFrom} from 'rxjs';
 
-import {Env, PortainerService} from '../../src/services/portainer.service';
+import {Env, PortainerService, PortainerUser} from '../../src/services/portainer.service';
 
 describe('PortainerService', () => {
 
@@ -17,37 +16,27 @@ describe('PortainerService', () => {
         } as Env],
     };
 
+    const user: PortainerUser = {
+        username: 'rPciNc7S',
+        password: '1jEEmcfSIP'
+    };
+
     beforeEach(() => {
-        sut = new PortainerService(expected.username, expected.password, expected.url);
+        sut = new PortainerService(expected.url);
     });
+
+    const verifyAuthBody = (body: any): boolean =>
+        JSON.stringify(body).indexOf(user.password) > 0 &&
+        JSON.stringify(body).indexOf(user.username) > 0;
 
     test
         .nock('http://lorem.com/api', api => api
-            .post('/auth')
-            .reply(200, {jwt: 'bla'})
+            .post('/auth', body => verifyAuthBody(body))
+            .reply(200, {jwt: 'ZPUjwQXPsVJ'})
         )
-        .nock('http://lorem.com/api', api => api
-            .put('/stacks/77', assertCorrectBodyValues)
-            .query({'endpointId': 88})
-            .reply(200, {})
-        )
-        .it('should do authentication and deployment', async () => {
-            const deployment = sut.deploy(77, 'fbjc2QZ0Qv', 88, expected.envs);
-
-            const response = await firstValueFrom(deployment);
-
-            expect(response)
-                .to.have.property("status")
-                .that.is.eq(200);
+        .it('should do authentication', async () => {
+            const response: any = await sut.login(user);
+            expect(response).is.eq(true);
+            expect(sut.token).is.eq('ZPUjwQXPsVJ');
         });
-
-    const assertCorrectBodyValues = (body: any): true => {
-        expect(body.stackFileContent).to.eq('fbjc2QZ0Qv');
-        expect(body.prune).to.be.true;
-        expect(body.env).to.deep.eq([{
-            name: 'lorem',
-            value: 'bacon'
-        } as Env]);
-        return true;
-    }
 });

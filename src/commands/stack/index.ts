@@ -1,7 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core';
 import * as fs from 'node:fs';
-import {lastValueFrom} from 'rxjs';
 
+import {LogCleanerService} from '../../services/log-cleaner.service';
 import {Env, PortainerService} from '../../services/portainer.service';
 
 export default class DeployStack extends Command {
@@ -54,6 +54,8 @@ export default class DeployStack extends Command {
         }),
     };
 
+    private readonly logCleaner = new LogCleanerService();
+
     async run(): Promise<void> {
         const {args, flags} = await this.parse(DeployStack);
 
@@ -64,10 +66,16 @@ export default class DeployStack extends Command {
             ? this.localEnvToArray(flags.env_link)
             : this.envFlagsToArrayOrThrow(flags.envs);
 
-        const service = new PortainerService(flags.username, flags.password, flags.url);
-        return lastValueFrom(service.deploy(flags.stack, composeFile!, flags.endpoint, envs))
-            .then(() => this.log('portainer deployment successful'))
-            .catch(error => this.fail(`portainer deployment error: ${JSON.stringify(error, null, 2)}`));
+        const service = new PortainerService(flags.url);
+        await service.login({
+            username: flags.username,
+            password: flags.password
+        });
+        return service.deploy(flags.stack, composeFile!, flags.endpoint, envs)
+            .then(r => {
+                this.log('portainer deployment successful', r);
+            })
+            .catch(error => this.fail(`portainer deployment error:`, error));
     }
 
     private envFlagsToArrayOrThrow(envsAsString: string | undefined): Env[] {
@@ -83,8 +91,9 @@ export default class DeployStack extends Command {
         return envs;
     }
 
-    private fail(message: string) {
-        this.logToStderr(message);
+    private fail(message: string, error: any = null) {
+        const formattedError = error == null ? '' : '\n' + JSON.stringify(this.logCleaner.clean(error), null, 2);
+        this.logToStderr(`${message}${formattedError}`);
         this.exit(1);
     }
 

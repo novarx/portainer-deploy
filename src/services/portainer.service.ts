@@ -1,7 +1,4 @@
-import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
-import {Observable, of, throwError} from 'rxjs';
-import {fromPromise} from 'rxjs/internal/observable/innerFrom';
-import {mergeMap} from 'rxjs/operators';
+import axios, {AxiosRequestConfig} from 'axios';
 
 export interface Env {
     name: string;
@@ -9,50 +6,51 @@ export interface Env {
 }
 
 interface GetBearer {
-    jwt: string
+    jwt: string;
+}
+
+export interface PortainerUser {
+    password: string;
+    username: string;
 }
 
 export class PortainerService {
-
+    private _token: null | string = null;
     private readonly BASE_PATH = '/api';
     private readonly BASE_URL: string;
-    private user: { password: string; username: string };
 
-    constructor(username: string, password: string, url: string) {
-        this.user = {password, username};
+    constructor(url: string) {
         this.BASE_URL = url;
     }
 
-    deploy(stackId: number, composeContent: string, endpointId: number, envs: Env[]): Observable<unknown> {
-        return this.loadBearer().pipe(
-            mergeMap(bearer => axios.put(
-                `${this.getUrl()}/stacks/${stackId}?endpointId=${endpointId}`,
-                {
-                    env: envs,
-                    prune: true,
-                    stackFileContent: composeContent
-                },
-                this.getAuthorizationHeaders(bearer)
-            )),
-            mergeMap(response => this.hasError(response) ? throwError(response.data) : of(response))
+    get token(): null | string {
+        return this._token;
+    }
+
+    async deploy(stackId: number, composeContent: string, endpointId: number, envs: Env[]): Promise<any> {
+        return axios.put(
+            `${this.getUrl()}/stacks/${stackId}?endpointId=${endpointId}`,
+            {
+                env: envs,
+                prune: true,
+                stackFileContent: composeContent
+            },
+            this.getAuthorizationHeaders()
         );
     }
 
-    private getAuthorizationHeaders(bearer: null | string): Partial<AxiosRequestConfig> {
-        return {headers: {Authorization: bearer}};
+    public async login(user: PortainerUser): Promise<boolean> {
+        return axios.post<GetBearer>(`${this.getUrl()}/auth`, user).then(response => {
+            this._token = response?.data?.jwt;
+            return response?.data?.jwt != null;
+        });
+    }
+
+    private getAuthorizationHeaders(): Partial<AxiosRequestConfig> {
+        return {headers: {Authorization: `Bearer ${this._token}`}};
     }
 
     private getUrl() {
         return this.BASE_URL + this.BASE_PATH;
-    }
-
-    private hasError(response: AxiosResponse) {
-        return response.status >= 400;
-    }
-
-    private loadBearer(): Observable<null | string> {
-        return fromPromise(axios.post<GetBearer>(`${this.getUrl()}/auth`, this.user)).pipe(mergeMap((response) =>
-            this.hasError(response) || !response.data.jwt ? throwError(response.data) : of('Bearer ' + response.data.jwt)
-        ));
     }
 }
