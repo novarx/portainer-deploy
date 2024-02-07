@@ -1,9 +1,9 @@
 import {Args, Command, Flags} from '@oclif/core';
 
+import {EnvVariablesMapper} from '../../services/env-variables-mapper';
+import {FileReader} from '../../services/file-reader';
 import {LogCleanerService} from '../../services/log-cleaner.service';
 import {Env, PortainerService} from '../../services/portainer.service';
-import {EnvVariablesMapper} from './env-variables-mapper';
-import {FileReader} from './file-reader';
 
 export default class DeployStack extends Command {
     static args = {

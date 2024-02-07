@@ -1,4 +1,4 @@
-import {Env} from '../../services/portainer.service';
+import {Env} from './portainer.service';
 
 class EnvVariablesError extends Error {
 }

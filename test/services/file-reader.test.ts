@@ -1,6 +1,6 @@
 import {expect} from '@oclif/test';
 
-import {FileEmptyError, FileNotFound, FileReader} from '../../../src/commands/stack/file-reader';
+import {FileEmptyError, FileNotFound, FileReader} from '../../src/services/file-reader';
 
 describe('FileReader', () => {
     it('should read file', () => {
