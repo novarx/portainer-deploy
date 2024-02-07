@@ -1,0 +1,20 @@
+POST https://portainer.novarx.ch/api/auth
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsInVzZXJuYW1lIjoicG9ydGFpbmVyLWRlcGxveSIsInJvbGUiOjIsInNjb3BlIjoiZGVmYXVsdCIsImZvcmNlQ2hhbmdlUGFzc3dvcmQiOmZhbHNlLCJleHAiOjE3MDcxODM5OTUsImlhdCI6MTcwNzE1NTE5NX0.ruI9LCtPPN84wEVOgct328p-xgi9g23zl1mYJX-UYXg
+
+{
+    "username": "{{username}}",
+    "password": "{{password}}"
+}
+
+###
+
+PUT https://portainer.novarx.ch/api/stacks/200?endpointId=2
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsInVzZXJuYW1lIjoicG9ydGFpbmVyLWRlcGxveSIsInJvbGUiOjIsInNjb3BlIjoiZGVmYXVsdCIsImZvcmNlQ2hhbmdlUGFzc3dvcmQiOmZhbHNlLCJleHAiOjE3MDcxODM5OTUsImlhdCI6MTcwNzE1NTE5NX0.ruI9LCtPPN84wEVOgct328p-xgi9g23zl1mYJX-UYXg
+
+{
+    "env": [],
+    "prune": true,
+    "stackFileContent": "version: '3'\\nservices:\\n  app:\\n    image: nginx\\n"
+}
