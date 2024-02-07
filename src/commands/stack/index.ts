@@ -1,8 +1,8 @@
 import {Args, Command, Flags} from '@oclif/core';
-import * as fs from 'node:fs';
 
 import {LogCleanerService} from '../../services/log-cleaner.service';
 import {Env, PortainerService} from '../../services/portainer.service';
+import {FileReader} from './file-reader';
 
 export default class DeployStack extends Command {
     static args = {
@@ -58,24 +58,27 @@ export default class DeployStack extends Command {
 
     async run(): Promise<void> {
         const {args, flags} = await this.parse(DeployStack);
+        try {
+            const composeFile = FileReader.readNonEmptyContent(args.file);
 
-        const composeFile = this.getFileContent(args.file);
-        if (!composeFile) this.fail(`Compose File: "${args.file}" is empty or not present`);
+            const envs: Env[] = flags.env_link
+                ? this.localEnvToArray(flags.env_link)
+                : this.envFlagsToArrayOrThrow(flags.envs);
 
-        const envs: Env[] = flags.env_link
-            ? this.localEnvToArray(flags.env_link)
-            : this.envFlagsToArrayOrThrow(flags.envs);
-
-        const service = new PortainerService(flags.url);
-        await service.login({
-            username: flags.username,
-            password: flags.password
-        });
-        return service.deploy(flags.stack, composeFile!, flags.endpoint, envs)
-            .then(r => {
-                this.log('portainer deployment successful', r);
-            })
-            .catch(error => this.fail(`portainer deployment error:`, error));
+            const service = new PortainerService(flags.url);
+            await service.login({
+                username: flags.username,
+                password: flags.password
+            });
+            this.logCleaner.sensitiveValue(service.token);
+            return service.deploy(flags.stack, composeFile!, flags.endpoint, envs)
+                .then(r => {
+                    this.log('portainer deployment successful', this.logCleaner.clean(r));
+                })
+                .catch(error => this.fail(`portainer deployment error:`, error));
+        } catch (error: any) {
+            this.fail(error.message);
+        }
     }
 
     private envFlagsToArrayOrThrow(envsAsString: string | undefined): Env[] {
@@ -95,18 +98,6 @@ export default class DeployStack extends Command {
         const formattedError = error == null ? '' : '\n' + JSON.stringify(this.logCleaner.clean(error), null, 2);
         this.logToStderr(`${message}${formattedError}`);
         this.exit(1);
-    }
-
-    private getFileContent(filename: string): null | string {
-        try {
-            return fs.readFileSync(filename).toString();
-        } catch (error) {
-            if (error instanceof Error) {
-                this.logToStderr(error.message);
-            }
-
-            return null;
-        }
     }
 
     private localEnvToArray(envLinks: string): Env[] {

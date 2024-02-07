@@ -10,7 +10,7 @@ export class LogCleanerService {
         const redactyl = new Redactyl({
             // Required
             'properties': ['apiKey', 'password', 'Authorization'],
-            replacer: (key: string, value: RedactData) => this.replaceSensitiveValues(value),
+            replacer: this.replaceSensitiveValues(),
 
             // Optional
             'text': LogCleanerService.REPLACEMENT,
@@ -33,7 +33,20 @@ export class LogCleanerService {
         return this.sensitiveValues.some(v => matcher(v));
     }
 
-    private replaceSensitiveValues(value: any): any {
-        return this.isSensitive(value) ? LogCleanerService.REPLACEMENT : value;
+
+    private replaceSensitiveValues(): any {
+        const seen = new WeakSet();
+
+        return (key: string, value: any) => {
+            if (typeof value === 'object' && value !== null) {
+                if (seen.has(value)) {
+                    return '[CYCL]';
+                }
+
+                seen.add(value);
+            }
+
+            return this.isSensitive(value) ? LogCleanerService.REPLACEMENT : value;
+        };
     }
 }

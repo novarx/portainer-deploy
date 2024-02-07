@@ -4,6 +4,7 @@ import {NockScope} from 'fancy-test/lib/types';
 describe('DeployStack', () => {
 
     const BASE_URL = 'http://lorem.com/api';
+    const JWT_TOKEN = 'kwbutxdu';
 
     const validArguments = [
         '--endpoint=55',
@@ -14,9 +15,9 @@ describe('DeployStack', () => {
     ];
 
     const authRequest = (api: NockScope) => api
-        .persist()
-        .post('/auth', captureAuthBody)
-        .reply(200, {jwt: 'kwbutxdu'});
+            .persist()
+            .post('/auth', captureAuthBody)
+            .reply(200, {jwt: JWT_TOKEN});
 
     const captureDeploymentBody = (body: any) => {
         deploymentReq = body;
@@ -30,7 +31,7 @@ describe('DeployStack', () => {
 
     const deploymentRequest = (api: NockScope) => api
         .put('/stacks/44', captureDeploymentBody)
-        .matchHeader('Authorization', (value: string) => value === 'Bearer kwbutxdu')
+        .matchHeader('Authorization', (value: string) => value === `Bearer ${JWT_TOKEN}`)
         .query({'endpointId': 55})
         .reply(200, {});
 
@@ -51,7 +52,7 @@ describe('DeployStack', () => {
         .exit(1)
         .it('throw on empty compose-file', ctx => {
             expect(ctx.stderr).to.contain(
-                'Compose File: "test/commands/stack/docker-compose.empty.yml" is empty or not present'
+                'File: "test/commands/stack/docker-compose.empty.yml" is empty'
             );
         });
 
@@ -64,7 +65,7 @@ describe('DeployStack', () => {
         .exit(1)
         .it('throw on non existing compose-file', ctx => {
             expect(ctx.stderr).to.contain(
-                'Compose File: "iAmNotARealFolder/docker-compose.NOPE.yaml" is empty or not present'
+                'File: "iAmNotARealFolder/docker-compose.NOPE.yaml" not found'
             );
         });
 
@@ -75,7 +76,7 @@ describe('DeployStack', () => {
         ])
         .exit(1)
         .it('throw on non existing default compose-file', ctx => {
-            expect(ctx.stderr).to.contain('Compose File: "docker-compose.yml" is empty or not present');
+            expect(ctx.stderr).to.contain('File: "docker-compose.yml" not found');
         });
 
     test.stderr().stdout()
@@ -131,6 +132,7 @@ describe('DeployStack', () => {
         ])
         .it('successful deployment', ctx => {
             expect(ctx.stdout).to.contain('portainer deployment successful');
+            expect(ctx.stdout).to.not.contain(JWT_TOKEN);
             const cleanStackFileContent = deploymentReq.stackFileContent.replaceAll('\r\n', `\n`);
             expect(cleanStackFileContent).to.eq("version: '3'\nservices:\n  app:\n    image: nginx\n");
             expect(deploymentReq.prune).to.be.true;
