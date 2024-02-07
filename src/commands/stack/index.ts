@@ -2,6 +2,7 @@ import {Args, Command, Flags} from '@oclif/core';
 
 import {LogCleanerService} from '../../services/log-cleaner.service';
 import {Env, PortainerService} from '../../services/portainer.service';
+import {EnvVariablesMapper} from './env-variables-mapper';
 import {FileReader} from './file-reader';
 
 export default class DeployStack extends Command {
@@ -60,10 +61,7 @@ export default class DeployStack extends Command {
         const {args, flags} = await this.parse(DeployStack);
         try {
             const composeFile = FileReader.readNonEmptyContent(args.file);
-
-            const envs: Env[] = flags.env_link
-                ? this.localEnvToArray(flags.env_link)
-                : this.envFlagsToArrayOrThrow(flags.envs);
+            const envs: Env[] = EnvVariablesMapper.getVariables(flags.env_link, flags.envs);
 
             const service = new PortainerService(flags.url);
             await service.login({
@@ -81,31 +79,9 @@ export default class DeployStack extends Command {
         }
     }
 
-    private envFlagsToArrayOrThrow(envsAsString: string | undefined): Env[] {
-        if (envsAsString === null || envsAsString === undefined) return [];
-
-        const envs: Env[] = JSON.parse(envsAsString);
-
-        if (!Array.isArray(envs)) this.fail('PORTAINER_ENVS is not an array');
-
-        const hasAnyNonEnvEntries = envs.some((env: Env) => env.name == null && env.value == null);
-        if (hasAnyNonEnvEntries) this.fail('PORTAINER_ENVS must be array like [{"name": string, "value": string');
-
-        return envs;
-    }
-
     private fail(message: string, error: any = null) {
         const formattedError = error == null ? '' : '\n' + JSON.stringify(this.logCleaner.clean(error), null, 2);
         this.logToStderr(`${message}${formattedError}`);
         this.exit(1);
-    }
-
-    private localEnvToArray(envLinks: string): Env[] {
-        return envLinks.split(',')
-            .map(envName => envName.trim())
-            .map(envName => ({
-                name: envName,
-                value: process.env[envName] ?? ''
-            } as Env));
     }
 }
