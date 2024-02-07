@@ -20,9 +20,11 @@ cli:build:
 
 cli:test:
   stage: build
+  needs:
+    - cli:build
   script:
     - npm run test
-    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - curl --connect-timeout 5 --retry 5 -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
     - ./codecov -t $CODECOV_TOKEN
   artifacts:
