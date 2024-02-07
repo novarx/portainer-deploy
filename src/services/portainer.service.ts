@@ -50,10 +50,6 @@ export class PortainerService {
         return {headers: {Authorization: `Bearer ${this._token}`}};
     }
 
-    private getAuthorizationHeaders(bearer: null | string): Partial<AxiosRequestConfig> {
-        return {headers: {Authorization: bearer}};
-    }
-
     private getUrl() {
         return this.BASE_URL + this.BASE_PATH;
     }

@@ -31,7 +31,7 @@
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^4",
     "axios": "^1.6.2",
-    "redactyl.js": "^1.6.0-SNAPSHOT",
+    "redactyl.js": "https://gitlab.com/api/v4/projects/54448959/packages/npm/redactyl.js/-/redactyl.js-1.6.0-SNAPSHOT.tgz",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
