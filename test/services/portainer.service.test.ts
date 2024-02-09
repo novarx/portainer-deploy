@@ -22,7 +22,7 @@ describe('PortainerService', () => {
     };
 
     beforeEach(() => {
-        sut = new PortainerService(expected.url);
+        sut = new PortainerService();
     });
 
     const verifyAuthBody = (body: any): boolean =>
@@ -35,7 +35,7 @@ describe('PortainerService', () => {
             .reply(200, {jwt: 'ZPUjwQXPsVJ'})
         )
         .it('should do authentication', async () => {
-            const response: any = await sut.login(user);
+            const response: any = await sut.login(expected.url, user);
             expect(response).is.eq(true);
             expect(sut.token).is.eq('ZPUjwQXPsVJ');
         });

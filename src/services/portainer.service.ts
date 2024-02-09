@@ -17,19 +17,14 @@ export interface PortainerUser {
 export class PortainerService {
     private _token: null | string = null;
     private readonly BASE_PATH = '/api';
-    private readonly BASE_URL: string;
-
-    constructor(url: string) {
-        this.BASE_URL = url;
-    }
 
     get token(): null | string {
         return this._token;
     }
 
-    async deploy(stackId: number, composeContent: string, endpointId: number, envs: Env[]): Promise<any> {
+    async deploy(url: string, stackId: number, composeContent: string, endpointId: number, envs: Env[]): Promise<any> {
         return axios.put(
-            `${this.getUrl()}/stacks/${stackId}?endpointId=${endpointId}`,
+            `${this.getUrl(url)}/stacks/${stackId}?endpointId=${endpointId}`,
             {
                 env: envs,
                 prune: true,
@@ -39,8 +34,8 @@ export class PortainerService {
         );
     }
 
-    public async login(user: PortainerUser): Promise<boolean> {
-        return axios.post<GetBearer>(`${this.getUrl()}/auth`, user).then(response => {
+    public async login(url: string, user: PortainerUser): Promise<boolean> {
+        return axios.post<GetBearer>(`${this.getUrl(url)}/auth`, user).then(response => {
             this._token = response?.data?.jwt;
             return response?.data?.jwt != null;
         });
@@ -50,7 +45,7 @@ export class PortainerService {
         return {headers: {Authorization: `Bearer ${this._token}`}};
     }
 
-    private getUrl() {
-        return this.BASE_URL + this.BASE_PATH;
+    private getUrl(url: string) {
+        return url + this.BASE_PATH;
     }
 }

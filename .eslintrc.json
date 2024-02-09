@@ -10,6 +10,8 @@
     "@typescript-eslint/no-explicit-any": 0,
     "perfectionist/sort-objects": "off",
     "unicorn/consistent-function-scoping": "off",
+    "unicorn/no-useless-undefined": "off",
+    "unicorn/no-array-for-each": "off",
     "node/no-extraneous-import": 0
   }
 }

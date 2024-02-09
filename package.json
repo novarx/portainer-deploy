@@ -31,6 +31,7 @@
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^4",
     "axios": "^1.6.2",
+    "parse-env-string": "^1.0.1",
     "redactyl.js": "https://gitlab.com/api/v4/projects/54448959/packages/npm/redactyl.js/-/redactyl.js-1.6.0-SNAPSHOT.tgz",
     "rxjs": "^7.8.1"
   },
@@ -44,6 +45,7 @@
     "@types/chai": "^4",
     "@types/mocha": "^9.0.0",
     "@types/node": "^18",
+    "@types/parse-env-string": "^1.0.2",
     "chai": "^4",
     "eslint": "^8.56.0",
     "eslint-config-oclif": "^5",

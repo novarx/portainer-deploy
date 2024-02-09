@@ -28,11 +28,6 @@ export default class DeployStack extends Command {
             env: 'PORTAINER_ENV_LINKS',
             exclusive: ['envs']
         }),
-        envs: Flags.string({
-            description: 'portainer env variables as json-array',
-            env: 'PORTAINER_ENVS',
-            exclusive: ['env_link']
-        }),
         password: Flags.string({
             description: 'portainer password',
             env: 'PORTAINER_PASS',
@@ -55,21 +50,21 @@ export default class DeployStack extends Command {
         }),
     };
 
-    private readonly logCleaner = new LogCleanerService();
+    public logCleaner = new LogCleanerService();
+    public service = new PortainerService();
 
     async run(): Promise<void> {
         const {args, flags} = await this.parse(DeployStack);
         try {
             const composeFile = FileReader.readNonEmptyContent(args.file);
-            const envs: Env[] = EnvVariablesMapper.getVariables(flags.env_link, flags.envs);
+            const envs: Env[] = EnvVariablesMapper.getVariables(flags.env_link);
 
-            const service = new PortainerService(flags.url);
-            await service.login({
+            await this.service.login(flags.url, {
                 username: flags.username,
                 password: flags.password
             });
-            this.logCleaner.sensitiveValue(service.token);
-            return service.deploy(flags.stack, composeFile!, flags.endpoint, envs)
+            this.logCleaner.sensitiveValue(this.service.token);
+            return this.service.deploy(flags.url, flags.stack, composeFile!, flags.endpoint, envs)
                 .then(r => {
                     this.log('portainer deployment successful', this.logCleaner.clean(r));
                 })

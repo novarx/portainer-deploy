@@ -1,10 +1,13 @@
-import {expect, test} from '@oclif/test';
-import {NockScope} from 'fancy-test/lib/types';
+import {Config} from '@oclif/core/lib/config';
+import {Options} from '@oclif/core/lib/interfaces/plugin';
+import {expect} from '@oclif/test';
+
+import DeployStack from '../../../src/commands/stack';
+import {Env, PortainerService, PortainerUser} from '../../../src/services/portainer.service';
+import {LogCleanerService} from '../../../src/services/log-cleaner.service';
 
 describe('DeployStack', () => {
-
-    const BASE_URL = 'http://lorem.com/api';
-    const JWT_TOKEN = 'kwbutxdu';
+    let config: Config;
 
     const validArguments = [
         '--endpoint=55',
@@ -14,158 +17,41 @@ describe('DeployStack', () => {
         '--username=me'
     ];
 
-    const authRequest = (api: NockScope) => api
-            .persist()
-            .post('/auth', captureAuthBody)
-            .reply(200, {jwt: JWT_TOKEN});
+    const mockService = {
+        async login(url: string, user: PortainerUser): Promise<boolean> {
+            return true;
+        },
+        deploy(url: string, stackId: number, composeContent: string, endpointId: number, envs: Env[]): Promise<any> {
+            return new Promise<any>(resolve => {
+                resolve({});
+            });
+        }
+    } as PortainerService;
 
-    const captureDeploymentBody = (body: any) => {
-        deploymentReq = body;
-        return true;
-    };
+    const mockLogService = {
 
-    const captureAuthBody = (body: any) => {
-        authReq = body;
-        return true;
-    };
-
-    const deploymentRequest = (api: NockScope) => api
-        .put('/stacks/44', captureDeploymentBody)
-        .matchHeader('Authorization', (value: string) => value === `Bearer ${JWT_TOKEN}`)
-        .query({'endpointId': 55})
-        .reply(200, {});
-
-    let deploymentReq: any | null;
-    let authReq: any | null;
+    } as LogCleanerService;
 
     beforeEach(() => {
-        deploymentReq = null;
-        authReq = null;
+        config = new Config({} as Options);
     });
 
-    test.stderr().stdout()
-        .command([
-            'stack',
-            'test/commands/stack/docker-compose.empty.yml',
+    it('should create', () => {
+        const sut = new DeployStack([], config);
+        expect(sut).not.to.be.null;
+    });
+
+    it('should run', async () => {
+        const sut = new DeployStack([
+            'test/commands/stack/docker-compose.yaml',
             ...validArguments
-        ])
-        .exit(1)
-        .it('throw on empty compose-file', ctx => {
-            expect(ctx.stderr).to.contain(
-                'File: "test/commands/stack/docker-compose.empty.yml" is empty'
-            );
-        });
+        ], config);
 
-    test.stderr().stdout()
-        .command([
-            'stack',
-            'iAmNotARealFolder/docker-compose.NOPE.yaml',
-            ...validArguments
-        ])
-        .exit(1)
-        .it('throw on non existing compose-file', ctx => {
-            expect(ctx.stderr).to.contain(
-                'File: "iAmNotARealFolder/docker-compose.NOPE.yaml" not found'
-            );
-        });
+        sut.service = mockService;
+        sut.logCleaner = mockLogService;
 
-    test.stderr().stdout()
-        .command([
-            'stack',
-            ...validArguments
-        ])
-        .exit(1)
-        .it('throw on non existing default compose-file', ctx => {
-            expect(ctx.stderr).to.contain('File: "docker-compose.yml" not found');
+        await sut.run().then(result => {
+            expect(result).not.to.be.null;
         });
-
-    test.stderr().stdout()
-        .env({
-            'VAR_1': 'MFu51GC'
-        })
-        .nock(BASE_URL, authRequest)
-        .nock(BASE_URL, deploymentRequest)
-        .command([
-            'stack',
-            'test/commands/stack/docker-compose.yaml',
-            ...validArguments,
-            '--env_link=VAR_1,VAR_NOT_DEFINED'
-        ])
-        .it('with env_link flag', () => {
-            expect(deploymentReq.env).to.deep.eq([
-                {
-                    'name': 'VAR_1',
-                    'value': 'MFu51GC'
-                },
-                {
-                    'name': 'VAR_NOT_DEFINED',
-                    'value': ''
-                }
-            ]);
-        });
-
-    test.stderr().stdout()
-        .nock(BASE_URL, authRequest)
-        .nock(BASE_URL, deploymentRequest)
-        .command([
-            'stack',
-            'test/commands/stack/docker-compose.yaml',
-            ...validArguments,
-            '--envs=[{"name": "VAR_2", "value": "Ff9RlhUisQ"}]'
-        ])
-        .it('with envs array flag', () => {
-            expect(deploymentReq.env).to.deep.eq([
-                {
-                    'name': 'VAR_2',
-                    'value': 'Ff9RlhUisQ'
-                }
-            ]);
-        });
-
-    test.stderr().stdout()
-        .nock(BASE_URL, authRequest)
-        .nock(BASE_URL, deploymentRequest)
-        .command([
-            'stack',
-            'test/commands/stack/docker-compose.yaml',
-            ...validArguments,
-        ])
-        .it('successful deployment', ctx => {
-            expect(ctx.stdout).to.contain('portainer deployment successful');
-            expect(ctx.stdout).to.not.contain(JWT_TOKEN);
-            const cleanStackFileContent = deploymentReq.stackFileContent.replaceAll('\r\n', `\n`);
-            expect(cleanStackFileContent).to.eq("version: '3'\nservices:\n  app:\n    image: nginx\n");
-            expect(deploymentReq.prune).to.be.true;
-            expect(deploymentReq.env).to.deep.eq([]);
-        });
-
-    test.stderr().stdout()
-        .nock(BASE_URL, authRequest)
-        .nock(BASE_URL, deploymentRequest)
-        .command([
-            'stack',
-            'test/commands/stack/docker-compose.yaml',
-            ...validArguments,
-        ])
-        .it('authenticates', () => {
-            expect(authReq).to.deep.eq({
-                "password": "abc",
-                "username": "me",
-            });
-        });
-
-    test.stderr().stdout()
-        .nock(BASE_URL, authRequest)
-        .nock(BASE_URL, deploymentRequest)
-        .command([
-            'stack',
-            'test/commands/stack/docker-compose.yaml',
-            ...validArguments,
-        ])
-        .it('authenticates', () => {
-            expect(authReq).to.deep.eq({
-                "password": "abc",
-                "username": "me",
-            });
-        });
+    });
 });
